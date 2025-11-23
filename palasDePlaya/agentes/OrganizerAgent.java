@@ -61,7 +61,7 @@ public class OrganizerAgent extends Agent {
 
         // Si hay un jugador impar, lo dejamos sin equipo
 
-        //Creamos los TeamAgents con habilidad base aleatorio
+        //Creamos los TeamAgents con habilidad base aleatoria
         try {
             int idx = 1;
             for (List<String> pair : parejas) {
