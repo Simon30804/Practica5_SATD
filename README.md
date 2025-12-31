@@ -194,22 +194,38 @@ En esta versión, los `PlayerAgent` no intervienen directamente en el cálculo d
 
 ### 4.3. `palasDePlaya.agentes.TeamAgent`
 
-> Nota: el archivo no está incluido aquí, pero se infiere su comportamiento a partir del uso que hace el `OrganizerAgent`.
-
 Rol: **Agente que representa a un equipo**.
 
-Responsabilidades esperadas:
+Responsabilidades:
 
-- Recibir mensajes `REQUEST` con contenido `"PLAY"`.
-- Mantener un número de partidos jugados y una `habilidadBase`.
-- Calcular un `score` de rendimiento usando `TeamPerformance` y algo de aleatoriedad.
-- Enviar de vuelta un `ACLMessage INFORM` al organizador con contenido `"RESULT;score;partidosJugados"`.
+- **Inicialización**: Recibir su nivel de habilidad inicial (`habilidadBase`) a través de los argumentos de creación.
+- **Escucha activa**: Esperar mensajes del organizador solicitando jugar un partido.
+- **Simulación de juego**: Calcular un rendimiento (`score`) para el partido actual, basado en su habilidad, fatiga acumulada y un factor aleatorio.
+- **Comunicación**: Responder al organizador con el resultado del rendimiento y el contador de partidos actualizados.
 
-Campos típicos:
+Ciclo de vida (`setup`):
 
-- `double habilidadBase`: recibida como argumento al crear el agente.
-- `int partidosJugados`: contador de partidos disputados.
-- `TeamPerformance performance`: para modelar fatiga.
+1. Recupera los argumentos pasados al agente (`Object[] args`). El primer argumento se espera que sea la `habilidadBase` (double).
+2. Inicializa el objeto `TeamPerformance` con dicha habilidad.
+3. Añade un comportamiento cíclico (`CyclicBehaviour`) para procesar la mensajería entrante.
+
+Comportamiento de Juego:
+
+El agente implementa un comportamiento que revisa constantemente la bandeja de entrada:
+1. Si recibe un mensaje `REQUEST` con contenido `"PLAY"`:
+    - Incrementa su contador de `partidosJugados`.
+    - Invoca a `performance.getRendimiento(partidosJugados)` para obtener la base del rendimiento.
+    - Añade una variación aleatoria (ruido) para simular la imprevisibilidad del deporte.
+    - Construye una respuesta `ACLMessage.INFORM`.
+    - Establece el contenido: `"RESULT;" + score + ";" + partidosJugados`.
+    - Envía el mensaje al remitente (el organizador).
+2. Si no hay mensajes, bloquea su ejecución (`block()`) hasta recibir uno nuevo.
+
+Atributos internos:
+
+- `double habilidadBase`: Nivel de destreza inicial (0.0 a 1.0).
+- `int partidosJugados`: Contador histórico de encuentros, influye en la fatiga.
+- `TeamPerformance performance`: Instancia de la clase de utilidad para cálculos de física/fatiga.
 
 ---
 
